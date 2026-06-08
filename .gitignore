@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/storage/*
+!backend/storage/.gitkeep
+backend/data/
+.vercel
+.railway

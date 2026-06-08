@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #f4f7ff;
+    --foreground: #0c1229;
+    --surface: #ffffff;
+    --surface-muted: #e8efff;
+    --border: #0c1229;
+    --accent: #0033cc;
+    --accent-soft: #00d4ff;
+    --shadow-color: #0c1229;
+    --gradient-start: #dbeafe;
+    --gradient-end: #f0f9ff;
+  }
+
+  .dark {
+    --background: #0a0a1a;
+    --foreground: #f0f4ff;
+    --surface: #111827;
+    --surface-muted: #1f2937;
+    --border: #000000;
+    --accent: #00d4ff;
+    --accent-soft: #4d7cff;
+    --shadow-color: #00d4ff;
+    --gradient-start: #0a0a1a;
+    --gradient-end: #111827;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    background-image: radial-gradient(
+      ellipse 120% 80% at 50% -20%,
+      color-mix(in srgb, var(--accent-soft) 18%, transparent),
+      transparent 55%
+    );
+  }
+}
+
+@layer components {
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-light {
+    @apply py-16 sm:py-20 bg-white/60 dark:bg-gray-900/40 border-y border-black/5 dark:border-white/5;
+  }
+
+  .section-muted {
+    @apply py-16 sm:py-20 dark:bg-gray-900/50;
+    background-color: color-mix(in srgb, var(--surface-muted) 80%, transparent);
+  }
+
+  .select-field {
+    @apply w-full px-4 py-2.5 rounded-lg border-2 border-black bg-white dark:bg-gray-900
+      focus:outline-none focus:ring-2 focus:ring-meps-cyan text-sm font-medium;
+  }
+
+  .badge-success {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold border border-black
+      bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300;
+  }
+
+  .badge-pending {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold border border-black
+      bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300;
+  }
+
+  .badge-error {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold border border-black
+      bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-meps-primary via-meps-cyan to-meps-accent bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-white/70 dark:bg-white/10 backdrop-blur-md border-2 border-black/10 dark:border-white/20;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-sm border-2 border-black;
+    background-color: color-mix(in srgb, var(--surface) 90%, transparent);
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .safe-area-pb {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "meps-backend",
+  "version": "1.0.0",
+  "description": "MEPS API Backend",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/wait-db.mjs && node --watch-path=./src --watch src/index.js",
+    "start": "node src/index.js",
+    "start:render": "npx prisma db push && node prisma/seed.js && node src/index.js",
+    "db:start": "node scripts/ensure-db.mjs",
+    "db:setup": "node scripts/setup-db-once.mjs",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.4.6",
+    "@prisma/client": "^6.3.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "deepl-node": "^1.16.0",
+    "dotenv": "^16.4.7",
+    "embedded-postgres": "^18.3.0-beta.17",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.9.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
+    "openai": "^4.77.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.21.0",
+    "stripe": "^17.5.0",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.1"
+  }
+}
