@@ -6,6 +6,61 @@ export function canUseLocalTts() {
   return process.platform === 'win32';
 }
 
+function normalizeTtsLang(code = 'es') {
+  const map = {
+    'pt-BR': 'pt',
+    zh: 'zh-CN',
+  };
+  return map[code] || code.split('-')[0];
+}
+
+async function synthesizeGoogleTtsChunk(text, language) {
+  const tl = normalizeTtsLang(language);
+  const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${encodeURIComponent(tl)}&q=${encodeURIComponent(text)}`;
+
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (!res.ok) {
+    throw new Error(`TTS gratuito no disponible (${res.status})`);
+  }
+
+  const buffer = Buffer.from(await res.arrayBuffer());
+  if (buffer.length < 100) {
+    throw new Error('TTS gratuito devolvio audio vacio');
+  }
+  return buffer;
+}
+
+/** TTS gratis en Linux/Render (Google Translate TTS, sin API key) */
+export async function generateAudiobookAudioFree(text, language, outputPath) {
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+
+  const maxChunk = 180;
+  const parts = [];
+  for (let i = 0; i < text.length; i += maxChunk) {
+    const slice = text.slice(i, i + maxChunk).trim();
+    if (slice) parts.push(slice);
+  }
+
+  if (parts.length === 0) {
+    throw new Error('Texto vacio para audiolibro');
+  }
+
+  const buffers = [];
+  for (let i = 0; i < parts.length; i++) {
+    buffers.push(await synthesizeGoogleTtsChunk(parts[i], language));
+    if (i < parts.length - 1) {
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+
+  await fs.writeFile(outputPath, Buffer.concat(buffers));
+  return outputPath;
+}
+
 function psEscapeSingleQuotes(s) {
   return String(s).replace(/'/g, "''");
 }

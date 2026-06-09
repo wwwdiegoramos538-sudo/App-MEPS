@@ -47,7 +47,7 @@ export default function AudiobooksPage() {
       const url = window.URL.createObjectURL(new Blob([data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${fileTitle || 'audiolibro'}.wav`;
+      a.download = `${fileTitle || 'audiolibro'}.mp3`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (err: unknown) {

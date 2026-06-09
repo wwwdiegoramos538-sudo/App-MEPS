@@ -128,7 +128,7 @@ export default function TranslatePage() {
       const url = window.URL.createObjectURL(new Blob([audioBlob]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `audiolibro-${ab.id}.wav`;
+      a.download = `audiolibro-${ab.id}.mp3`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (err: unknown) {
