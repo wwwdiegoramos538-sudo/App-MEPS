@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: false },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    webpackMemoryOptimizations: true,
   },
   async rewrites() {
     return [
