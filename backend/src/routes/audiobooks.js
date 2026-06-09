@@ -5,7 +5,7 @@ import { prisma } from '../config/database.js';
 import { config } from '../config/index.js';
 import { authenticate, attachUser } from '../middleware/auth.js';
 import { generateAudiobookAudio } from '../services/openaiService.js';
-import { generateAudiobookAudioWav } from '../services/audioFallbackService.js';
+import { canUseLocalTts, generateAudiobookAudioWav } from '../services/audioFallbackService.js';
 import { sanitizeForDb } from '../utils/dbText.js';
 
 const router = Router();
@@ -37,6 +37,17 @@ router.post('/', async (req, res, next) => {
     });
 
     const hasOpenAI = !!config.openaiApiKey;
+    if (!hasOpenAI && !canUseLocalTts()) {
+      await prisma.audiobook.update({
+        where: { id: audiobook.id },
+        data: { status: 'failed' },
+      });
+      return res.status(503).json({
+        error: 'Audiolibros requieren OPENAI_API_KEY en Render. Agrega la clave en meps-backend → Environment.',
+        code: 'TTS_NOT_AVAILABLE',
+      });
+    }
+
     const audioExt = hasOpenAI ? 'mp3' : 'wav';
     const audioFileName = `${uuidv4()}.${audioExt}`;
     const audioPath = path.join(config.storageDir, 'audiobooks', audioFileName);

@@ -26,11 +26,14 @@ export default function AudiobooksPage() {
   const handleCreate = async () => {
     if (!text.trim()) return;
     setLoading(true);
+    setError('');
     try {
       await audiobookApi.create({ title: title || 'Audiolibro MEPS', sourceText: text, language, voice });
       setTitle('');
       setText('');
       load();
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'No se pudo generar el audiolibro'));
     } finally {
       setLoading(false);
     }

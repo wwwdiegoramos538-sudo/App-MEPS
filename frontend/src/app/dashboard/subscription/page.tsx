@@ -31,7 +31,7 @@ export default function SubscriptionPage() {
       const { data } = await subscriptionApi.checkout(planId.toLowerCase());
       if (data.url) window.location.href = data.url;
     } catch {
-      alert('Stripe no configurado. Configura las variables STRIPE_* en el backend.');
+      alert('Pagos no disponibles todavia. Configura Stripe en Render o usa el plan Pro incluido con tu cuenta.');
     } finally {
       setLoading('');
     }

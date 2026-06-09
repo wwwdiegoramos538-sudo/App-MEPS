@@ -45,6 +45,15 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
       },
     });
 
+    await prisma.libraryItem.create({
+      data: {
+        userId: req.userId,
+        documentId: document.id,
+        title: document.title,
+        category: 'documentos',
+      },
+    });
+
     res.status(201).json({ document, storage: stored });
   } catch (err) {
     next(err);

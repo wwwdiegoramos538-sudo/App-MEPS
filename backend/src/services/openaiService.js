@@ -78,7 +78,17 @@ export async function generateAudiobookAudio(text, voice = 'alloy', outputPath) 
 export async function chatSupport(message, history = []) {
   const client = getOpenAI();
   if (!client) {
-    return 'Gracias por contactarnos. Un agente de soporte te respondera pronto. Para ayuda inmediata, revisa nuestra documentacion.';
+    const q = message.toLowerCase();
+    if (q.includes('traduc') || q.includes('pdf') || q.includes('docx')) {
+      return 'Para traducir: ve a Dashboard → Traducir, sube un PDF/DOCX/TXT y elige idioma destino. MEPS usa DeepL, OpenAI o traductores gratuitos automaticamente.';
+    }
+    if (q.includes('plan') || q.includes('suscri') || q.includes('pago')) {
+      return 'Tu plan actual aparece en Dashboard → Suscripcion. Los pagos con Stripe requieren configurar las claves STRIPE_* en el servidor.';
+    }
+    if (q.includes('audio') || q.includes('libro')) {
+      return 'Para audiolibros: traduce un texto y usa "Crear audiolibro", o ve a Dashboard → Audiolibros. Requiere OPENAI_API_KEY en produccion.';
+    }
+    return 'Hola, soy el asistente MEPS. Puedo ayudarte con traducciones, documentos, biblioteca y planes. Escribe tu pregunta con mas detalle.';
   }
 
   const response = await client.chat.completions.create({

@@ -2,6 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { spawn } from 'child_process';
 
+export function canUseLocalTts() {
+  return process.platform === 'win32';
+}
+
 function psEscapeSingleQuotes(s) {
   return String(s).replace(/'/g, "''");
 }

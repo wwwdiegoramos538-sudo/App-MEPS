@@ -134,6 +134,15 @@ async function processTranslationJob(translationId, {
       },
     });
 
+    await prisma.libraryItem.create({
+      data: {
+        userId,
+        documentId: documentId || null,
+        title: `Traduccion ${sourceLanguage} → ${targetLanguage}`,
+        category: 'traducciones',
+      },
+    }).catch(() => {});
+
     await prisma.subscription.updateMany({
       where: { userId },
       data: { translationsUsed: { increment: 1 } },

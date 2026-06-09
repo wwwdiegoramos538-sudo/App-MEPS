@@ -9,6 +9,30 @@ import { sendPasswordResetEmail } from '../services/emailService.js';
 
 const router = Router();
 
+async function ensureOpenLoginAccess(user) {
+  const isAdmin = user.email === 'admin@meps.com' || user.email.startsWith('admin@');
+  const plan = isAdmin ? 'ENTERPRISE' : 'PRO';
+
+  if (isAdmin && user.role !== 'ADMIN') {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { role: 'ADMIN' },
+      include: { subscription: true },
+    });
+  }
+
+  await prisma.subscription.upsert({
+    where: { userId: user.id },
+    update: { plan, translationsLimit: -1, status: 'ACTIVE' },
+    create: { userId: user.id, plan, translationsLimit: -1, status: 'ACTIVE' },
+  });
+
+  return prisma.user.findUnique({
+    where: { id: user.id },
+    include: { subscription: true },
+  });
+}
+
 async function findOrCreateUser(email, name) {
   let user = await prisma.user.findUnique({
     where: { email },
@@ -16,23 +40,36 @@ async function findOrCreateUser(email, name) {
   });
 
   if (!user) {
+    const isAdmin = email === 'admin@meps.com' || email.startsWith('admin@');
     const hashed = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 12);
     user = await prisma.user.create({
       data: {
         email,
         password: hashed,
         name: name?.trim() || email.split('@')[0],
+        role: isAdmin ? 'ADMIN' : 'USER',
         emailVerified: true,
-        subscription: { create: { plan: 'FREE', translationsLimit: 5 } },
+        subscription: {
+          create: {
+            plan: isAdmin ? 'ENTERPRISE' : 'PRO',
+            translationsLimit: -1,
+            status: 'ACTIVE',
+          },
+        },
       },
       include: { subscription: true },
     });
-  } else if (!user.isActive) {
-    user = await prisma.user.update({
-      where: { id: user.id },
-      data: { isActive: true },
-      include: { subscription: true },
-    });
+  } else {
+    if (!user.isActive) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { isActive: true },
+        include: { subscription: true },
+      });
+    }
+    if (config.openLogin) {
+      user = await ensureOpenLoginAccess(user);
+    }
   }
 
   return user;
@@ -72,6 +109,11 @@ router.post(
   async (req, res, next) => {
     try {
       const { email, password, name } = req.body;
+
+      if (config.openLogin) {
+        const user = await findOrCreateUser(email, name);
+        return sendAuthResponse(res, user, 201);
+      }
 
       const exists = await prisma.user.findUnique({ where: { email } });
       if (exists) {

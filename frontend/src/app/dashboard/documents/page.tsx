@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { documentApi } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/errors';
 import { formatDate, formatFileSize } from '@/lib/utils';
 
 interface Document {
@@ -20,6 +21,7 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () => {
@@ -32,11 +34,14 @@ export default function DocumentsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError('');
     const formData = new FormData();
     formData.append('file', file);
     try {
       await documentApi.upload(formData);
       load();
+    } catch (err: unknown) {
+      setUploadError(getApiErrorMessage(err, 'Error al subir el documento'));
     } finally {
       setUploading(false);
     }
@@ -61,6 +66,7 @@ export default function DocumentsPage() {
         </Button>
         <input ref={fileRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleUpload} />
       </div>
+      {uploadError && <p className="text-red-500 text-sm">{uploadError}</p>}
 
       {loading ? (
         <div className="text-center py-12">Cargando...</div>
