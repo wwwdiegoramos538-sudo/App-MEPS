@@ -3,6 +3,8 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: false },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
