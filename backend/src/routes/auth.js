@@ -9,6 +9,41 @@ import { sendPasswordResetEmail } from '../services/emailService.js';
 
 const router = Router();
 
+async function findOrCreateUser(email, name) {
+  let user = await prisma.user.findUnique({
+    where: { email },
+    include: { subscription: true },
+  });
+
+  if (!user) {
+    const hashed = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 12);
+    user = await prisma.user.create({
+      data: {
+        email,
+        password: hashed,
+        name: name?.trim() || email.split('@')[0],
+        emailVerified: true,
+        subscription: { create: { plan: 'FREE', translationsLimit: 5 } },
+      },
+      include: { subscription: true },
+    });
+  } else if (!user.isActive) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { isActive: true },
+      include: { subscription: true },
+    });
+  }
+
+  return user;
+}
+
+function sendAuthResponse(res, user, status = 200) {
+  const token = generateToken(user);
+  const { password: _, resetToken, resetExpires, ...safeUser } = user;
+  res.status(status).json({ user: safeUser, token });
+}
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -65,11 +100,18 @@ router.post(
 
 router.post(
   '/login',
-  [body('email').isEmail().normalizeEmail(), body('password').notEmpty()],
+  config.openLogin
+    ? [body('email').isEmail().normalizeEmail()]
+    : [body('email').isEmail().normalizeEmail(), body('password').notEmpty()],
   validate,
   async (req, res, next) => {
     try {
       const { email, password } = req.body;
+
+      if (config.openLogin) {
+        const user = await findOrCreateUser(email, req.body.name);
+        return sendAuthResponse(res, user);
+      }
 
       const user = await prisma.user.findUnique({
         where: { email },
@@ -85,9 +127,7 @@ router.post(
         return res.status(401).json({ error: 'Credenciales invalidas' });
       }
 
-      const token = generateToken(user);
-      const { password: _, resetToken, resetExpires, ...safeUser } = user;
-      res.json({ user: safeUser, token });
+      sendAuthResponse(res, user);
     } catch (err) {
       next(err);
     }

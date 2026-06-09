@@ -50,7 +50,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label="Correo electronico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input label="Contrasena" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <Input label="Contrasena (opcional)" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Cualquier contrasena" />
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full" loading={loading}>Iniciar sesion</Button>
         </form>

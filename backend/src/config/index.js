@@ -35,4 +35,5 @@ export const config = {
   },
   uploadsDir: path.join(__dirname, '../../uploads'),
   storageDir: path.join(__dirname, '../../storage'),
+  openLogin: process.env.OPEN_LOGIN === 'true',
 };

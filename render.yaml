@@ -27,6 +27,8 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
+      - key: OPEN_LOGIN
+        value: "true"
       - key: FRONTEND_URL
         fromService:
           name: meps-frontend
