@@ -181,37 +181,89 @@
 
   .intro-bg-gradient {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0, 212, 255, 0.18), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(0, 51, 204, 0.25), transparent 55%),
-      radial-gradient(ellipse 50% 40% at 85% 20%, rgba(77, 124, 255, 0.2), transparent 50%);
-    animation: intro-bg-pulse 3s ease-in-out infinite;
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0, 212, 255, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(0, 51, 204, 0.15), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 85% 20%, rgba(77, 124, 255, 0.12), transparent 50%);
+    animation: intro-bg-pulse 5s ease-in-out infinite;
   }
 
   .intro-logo-glow {
-    background: radial-gradient(circle, rgba(0, 212, 255, 0.45) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.28) 0%, transparent 70%);
   }
 
   .intro-logo-shine {
-    animation: intro-shine 2.5s ease-in-out 0.8s infinite;
+    animation: intro-shine 3.5s ease-in-out 0.8s infinite;
   }
 
   .intro-letter-shine {
-    text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.35);
   }
 
   .intro-particle {
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.8);
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.35);
   }
+
+  .intro-orbit-ring {
+    animation: intro-orbit-ring-pulse 4s ease-in-out infinite;
+  }
+
+  .intro-orbit-spin {
+    animation: intro-orbit-spin 32s linear infinite;
+  }
+
+  .intro-orbit-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    transform: rotate(var(--orbit-angle)) translateY(calc(-1 * var(--orbit-radius)));
+  }
+
+  .intro-orbit-counter {
+    animation: intro-orbit-counter 32s linear infinite;
+  }
+
+  .intro-orbit-label {
+    display: block;
+    transform: translate(-50%, -50%) rotate(calc(-1 * var(--orbit-angle)));
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: rgba(0, 212, 255, 0.85);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.12);
+  }
+}
+
+@keyframes intro-orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes intro-orbit-counter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes intro-orbit-ring-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.02); }
 }
 
 @keyframes intro-bg-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
+  50% { opacity: 0.92; transform: scale(1.01); }
 }
 
 @keyframes intro-shine {
-  0%, 100% { filter: brightness(1) drop-shadow(0 0 8px rgba(0, 212, 255, 0.3)); }
-  50% { filter: brightness(1.15) drop-shadow(0 0 20px rgba(0, 212, 255, 0.6)); }
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 6px rgba(0, 212, 255, 0.2)); }
+  50% { filter: brightness(1.08) drop-shadow(0 0 14px rgba(0, 212, 255, 0.4)); }
 }
 
 @keyframes intro-static-pulse {
