@@ -67,23 +67,6 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), asyn
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: { error: 'Demasiadas solicitudes, intenta mas tarde' },
-});
-app.use('/api/', limiter);
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { error: 'Demasiados intentos de autenticacion' },
-});
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
-
-app.use('/storage', express.static(config.storageDir));
-
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -92,6 +75,24 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Demasiadas solicitudes, intenta mas tarde' },
+  skip: (req) => req.path === '/health' || req.originalUrl.startsWith('/api/health'),
+});
+app.use('/api/', limiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: config.openLogin ? 60 : 20,
+  message: { error: 'Demasiados intentos de autenticacion. Espera 1 minuto.' },
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+
+app.use('/storage', express.static(config.storageDir));
 
 app.get('/api', (req, res) => {
   res.json({

@@ -1,0 +1,23 @@
+name: MEPS Render Health Check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check Render services
+        run: node scripts/monitor-render.mjs
+
+      - name: Full API smoke test
+        run: node scripts/test-prod-api.mjs

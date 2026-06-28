@@ -15,7 +15,9 @@
     "db:push": "npm run db:push --prefix backend",
     "db:studio": "npm run db:studio --prefix backend",
     "db:setup": "npm run db:setup --prefix backend",
-    "db:start": "npm run db:start --prefix backend"
+    "db:start": "npm run db:start --prefix backend",
+    "monitor:render": "node scripts/monitor-render.mjs",
+    "test:prod": "node scripts/test-prod-api.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

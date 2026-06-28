@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { AxiosError } from 'axios';
 import { User, getUser, getToken, clearAuth, saveAuth } from '@/lib/auth';
 import { userApi } from '@/lib/api';
 
@@ -33,9 +34,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = await userApi.getProfile();
       setUser(data.user);
       localStorage.setItem('meps_user', JSON.stringify(data.user));
-    } catch {
-      clearAuth();
-      setUser(null);
+    } catch (err) {
+      const status = (err as AxiosError)?.response?.status;
+      if (status === 401 || status === 403) {
+        clearAuth();
+        setUser(null);
+      }
     }
   };
 

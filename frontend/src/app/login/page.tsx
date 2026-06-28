@@ -11,11 +11,13 @@ import { authApi } from '@/lib/api';
 import { saveAuth } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApiErrorMessage } from '@/lib/errors';
+import { wakeBackend, loginWithRetry } from '@/lib/wakeBackend';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { setUser } = useAuth();
@@ -23,14 +25,21 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setStatus('');
     setLoading(true);
     try {
-      const { data } = await authApi.login({ email, password });
+      await wakeBackend(setStatus);
+      const { data } = await loginWithRetry(
+        () => authApi.login({ email, password }),
+        setStatus
+      );
       saveAuth(data.token, data.user);
       setUser(data.user);
+      setStatus('');
       router.push(data.user.role === 'ADMIN' ? '/admin' : '/dashboard');
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Error al iniciar sesion'));
+      setStatus('');
     } finally {
       setLoading(false);
     }
@@ -51,8 +60,11 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label="Correo electronico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           <Input label="Contrasena (opcional)" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Cualquier contrasena" />
+          {status && <p className="text-meps-dark dark:text-meps-cyan text-sm">{status}</p>}
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" loading={loading}>Iniciar sesion</Button>
+          <Button type="submit" className="w-full" loading={loading}>
+            {loading && status ? 'Conectando...' : 'Iniciar sesion'}
+          </Button>
         </form>
 
         <div className="mt-6 text-center text-sm space-y-2">
