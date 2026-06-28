@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import fs from 'fs';
+import path from 'path';
 import { body, validationResult } from 'express-validator';
 import { prisma } from '../config/database.js';
 import { authenticate, attachUser } from '../middleware/auth.js';
@@ -105,7 +106,17 @@ router.get('/:id/download', async (req, res, next) => {
     }
 
     if (translation.translatedFile && fs.existsSync(translation.translatedFile)) {
-      return res.download(translation.translatedFile, `traduccion-${translation.id}.txt`);
+      const ext = path.extname(translation.translatedFile).toLowerCase() || '.txt';
+      const downloadName =
+        ext === '.docx'
+          ? `traduccion-${translation.targetLanguage}-${translation.id.slice(0, 8)}.docx`
+          : `traduccion-${translation.id}.txt`;
+      const contentType =
+        ext === '.docx'
+          ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          : 'text/plain; charset=utf-8';
+      res.setHeader('Content-Type', contentType);
+      return res.download(translation.translatedFile, downloadName);
     }
 
     if (translation.translatedText) {

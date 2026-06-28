@@ -17,3 +17,14 @@ export function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+export function getFilenameFromContentDisposition(
+  header: string | undefined,
+  fallback: string
+): string {
+  if (!header) return fallback;
+  const utf8 = header.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8?.[1]) return decodeURIComponent(utf8[1]);
+  const plain = header.match(/filename="?([^";]+)"?/i);
+  return plain?.[1] || fallback;
+}

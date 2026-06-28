@@ -7,6 +7,7 @@ import { extractTextFromFile } from './fileParserService.js';
 import { translateWithDeepL, isDeepLAvailable } from './deeplService.js';
 import { translateWithOpenAI, isOpenAIAvailable } from './openaiService.js';
 import { translateWithFallback, isFallbackAvailable } from './fallbackTranslationService.js';
+import { translateDocxPreservingFormat, isDocxFile } from './docxTranslationService.js';
 import { saveToStorage } from './storageService.js';
 import { sanitizeForDb } from '../utils/dbText.js';
 
@@ -44,6 +45,16 @@ async function runTranslation(sourceText, targetLanguage, sourceLanguage, provid
   }
 
   throw new Error(errors.join(' | ') || 'No hay motores de traduccion disponibles');
+}
+
+async function translateBlock(text, targetLanguage, sourceLanguage, provider) {
+  if (!text?.trim()) return text;
+  try {
+    const result = await runTranslation(text, targetLanguage, sourceLanguage, provider);
+    return result.text;
+  } catch {
+    return translateWithFallback(text, targetLanguage, sourceLanguage);
+  }
 }
 
 export async function startTranslation({
@@ -94,25 +105,57 @@ async function processTranslationJob(translationId, {
   const startTime = Date.now();
 
   try {
-    let sourceText = '';
-    if (filePath) {
-      sourceText = await extractTextFromFile(filePath, mimeType);
-    } else if (documentId) {
+    let resolvedPath = filePath;
+    let resolvedMime = mimeType;
+
+    if (!resolvedPath && documentId) {
       const doc = await prisma.document.findUnique({ where: { id: documentId } });
       if (!doc) throw new Error('Documento no encontrado');
-      sourceText = await extractTextFromFile(doc.filePath, doc.mimeType);
+      resolvedPath = doc.filePath;
+      resolvedMime = doc.mimeType;
     }
 
-    if (!sourceText?.trim()) {
-      throw new Error('No se pudo extraer texto del documento. Verifica que el PDF/DOCX no este vacio o escaneado.');
+    const docx = isDocxFile(resolvedPath, resolvedMime);
+    let sourceText = '';
+
+    if (!docx) {
+      if (!resolvedPath) throw new Error('Archivo no encontrado');
+      sourceText = await extractTextFromFile(resolvedPath, resolvedMime);
+      if (!sourceText?.trim()) {
+        throw new Error('No se pudo extraer texto del documento. Verifica que el PDF/DOCX no este vacio o escaneado.');
+      }
     }
 
-    const result = await runTranslation(sourceText, targetLanguage, sourceLanguage, provider);
+    let result;
+    let outPath;
 
-    const outFileName = `${uuidv4()}.txt`;
-    const outPath = path.join(config.storageDir, 'translations', outFileName);
-    await fs.mkdir(path.dirname(outPath), { recursive: true });
-    await fs.writeFile(outPath, result.text, 'utf-8');
+    if (docx) {
+      if (!resolvedPath) {
+        throw new Error('Archivo DOCX no encontrado');
+      }
+
+      outPath = path.join(config.storageDir, 'translations', `${uuidv4()}.docx`);
+      await fs.mkdir(path.dirname(outPath), { recursive: true });
+
+      const docxResult = await translateDocxPreservingFormat(
+        resolvedPath,
+        outPath,
+        (blockText) => translateBlock(blockText, targetLanguage, sourceLanguage, provider)
+      );
+
+      if (!docxResult.plainText?.trim()) {
+        throw new Error('El DOCX no contiene texto traducible');
+      }
+
+      sourceText = docxResult.plainText;
+      result = { text: docxResult.plainText, provider: 'docx-formatted' };
+    } else {
+      result = await runTranslation(sourceText, targetLanguage, sourceLanguage, provider);
+      outPath = path.join(config.storageDir, 'translations', `${uuidv4()}.txt`);
+      await fs.mkdir(path.dirname(outPath), { recursive: true });
+      await fs.writeFile(outPath, result.text, 'utf-8');
+    }
+
     const stored = await saveToStorage(outPath, 'translations');
 
     const wordCount = sourceText.split(/\s+/).filter(Boolean).length;

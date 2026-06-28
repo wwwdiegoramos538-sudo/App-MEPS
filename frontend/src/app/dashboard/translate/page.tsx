@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { audiobookApi, translationApi } from '@/lib/api';
 import { getApiErrorMessage } from '@/lib/errors';
+import { getFilenameFromContentDisposition } from '@/lib/utils';
 
 interface Language {
   code: string;
@@ -22,7 +23,7 @@ interface TranslationResult {
   translatedText?: string;
 }
 
-async function waitForTranslation(id: string, maxAttempts = 90): Promise<TranslationResult> {
+async function waitForTranslation(id: string, maxAttempts = 120): Promise<TranslationResult> {
   for (let i = 0; i < maxAttempts; i++) {
     const { data } = await translationApi.get(id);
     const translation = data.translation as TranslationResult;
@@ -91,11 +92,17 @@ export default function TranslatePage() {
   const handleDownload = async () => {
     if (!result?.id) return;
     try {
-      const { data } = await translationApi.download(result.id);
-      const url = window.URL.createObjectURL(new Blob([data]));
+      const response = await translationApi.download(result.id);
+      const filename = getFilenameFromContentDisposition(
+        response.headers['content-disposition'],
+        file?.name?.toLowerCase().endsWith('.docx')
+          ? `traduccion-${result.id}.docx`
+          : `traduccion-${result.id}.txt`
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `traduccion-${result.id}.txt`;
+      a.download = filename;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (err: unknown) {
@@ -156,7 +163,7 @@ export default function TranslatePage() {
           ) : (
             <>
               <p className="font-semibold">Arrastra o haz clic para subir</p>
-              <p className="text-sm text-gray-500 mt-1">PDF, DOCX, TXT</p>
+              <p className="text-sm text-gray-500 mt-1">PDF, DOCX, TXT · DOCX conserva diseño y colores</p>
             </>
           )}
           <input
@@ -219,7 +226,7 @@ export default function TranslatePage() {
           <div className="mt-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-meps-cyan">
             <p className="font-semibold text-meps-dark dark:text-meps-cyan">Procesando traduccion...</p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Esto puede tardar unos segundos segun el tamano del archivo.
+              Los DOCX pueden tardar mas porque se traduce parrafo a parrafo conservando el formato.
             </p>
           </div>
         )}

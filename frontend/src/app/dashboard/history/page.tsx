@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { translationApi } from '@/lib/api';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getFilenameFromContentDisposition } from '@/lib/utils';
 
 interface Translation {
   id: string;
@@ -34,11 +34,15 @@ export default function HistoryPage() {
   };
 
   const handleDownload = async (id: string) => {
-    const { data } = await translationApi.download(id);
-    const url = window.URL.createObjectURL(new Blob([data]));
+    const response = await translationApi.download(id);
+    const filename = getFilenameFromContentDisposition(
+      response.headers['content-disposition'],
+      `traduccion-${id}.txt`
+    );
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `traduccion-${id}.txt`;
+    a.download = filename;
     a.click();
   };
 
