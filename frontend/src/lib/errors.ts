@@ -30,6 +30,10 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
     return 'No se pudo conectar con el servidor. Verifica que npm run dev este corriendo en la PC.';
   }
 
+  if (axiosErr.response?.status === 500) {
+    return 'El servidor tuvo un error. Espera 10 segundos y vuelve a intentar (puede estar iniciando).';
+  }
+
   if (axiosErr.response?.status === 502 || axiosErr.response?.status === 503 || axiosErr.response?.status === 504) {
     return 'El servidor esta iniciando. Espera un momento e intenta de nuevo.';
   }

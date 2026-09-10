@@ -60,9 +60,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </div>
-        <ClientShell>
-          <Providers>{children}</Providers>
-        </ClientShell>
+        <Providers>
+          <ClientShell>{children}</ClientShell>
+        </Providers>
       </body>
     </html>
   );
