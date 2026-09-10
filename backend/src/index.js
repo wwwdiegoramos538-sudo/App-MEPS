@@ -28,6 +28,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 );
 
 const app = express();
+const isDev = config.nodeEnv === 'development';
+
+app.set('trust proxy', 1);
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 const corsOrigins = [
@@ -76,18 +79,30 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+const skipHealth = (req) =>
+  req.path === '/health' || req.originalUrl.startsWith('/api/health');
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: isDev ? 5000 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Demasiadas solicitudes, intenta mas tarde' },
-  skip: (req) => req.path === '/health' || req.originalUrl.startsWith('/api/health'),
+  skip: skipHealth,
 });
 app.use('/api/', limiter);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: config.openLogin ? 60 : 20,
+  max: isDev ? 500 : config.openLogin ? 200 : 30,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Demasiados intentos de autenticacion. Espera 1 minuto.' },
+  keyGenerator: (req) => {
+    const email = req.body?.email;
+    if (typeof email === 'string' && email.trim()) return email.trim().toLowerCase();
+    return req.ip || 'unknown';
+  },
 });
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);

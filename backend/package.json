@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/wait-db.mjs && node --watch-path=./src --watch src/index.js",
+    "dev:stable": "node scripts/wait-db.mjs && node src/index.js",
     "start": "node src/index.js",
     "start:render": "npx prisma db push && node prisma/seed.js && node src/index.js",
     "db:start": "node scripts/ensure-db.mjs",

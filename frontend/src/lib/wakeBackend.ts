@@ -3,9 +3,10 @@
  */
 import { api } from './api';
 
-const WAKE_ATTEMPTS = 6;
-const WAKE_DELAY_MS = 4000;
+const WAKE_ATTEMPTS = 3;
+const WAKE_DELAY_MS = 6000;
 const WAKE_TIMEOUT_MS = 90000;
+const RATE_LIMIT_WAIT_MS = 45000;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -28,7 +29,13 @@ export async function wakeBackend(onStatus?: (msg: string) => void): Promise<boo
     try {
       await api.get('/health', { timeout: WAKE_TIMEOUT_MS });
       return true;
-    } catch {
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 429 && attempt < WAKE_ATTEMPTS) {
+        onStatus?.('Servidor ocupado. Esperando un momento...');
+        await sleep(RATE_LIMIT_WAIT_MS);
+        continue;
+      }
       if (attempt < WAKE_ATTEMPTS) await sleep(WAKE_DELAY_MS);
     }
   }
@@ -39,19 +46,24 @@ export async function loginWithRetry(
   loginFn: () => Promise<{ data: { token: string; user: unknown } }>,
   onStatus?: (msg: string) => void
 ) {
-  const attempts = isRenderHost() ? 4 : 2;
+  const attempts = isRenderHost() ? 3 : 2;
 
   for (let i = 1; i <= attempts; i++) {
     try {
       if (i > 1) {
         onStatus?.(`Reintentando login (${i}/${attempts})...`);
-        await sleep(3000);
+        await sleep(5000);
         await wakeBackend(onStatus);
       }
       return await loginFn();
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
-      const retryable = !status || status >= 502 || status === 429 || status === 504;
+      if (status === 429 && i < attempts) {
+        onStatus?.('Demasiadas solicitudes. Esperando 45 segundos...');
+        await sleep(RATE_LIMIT_WAIT_MS);
+        continue;
+      }
+      const retryable = !status || status >= 502 || status === 504;
       if (!retryable || i === attempts) throw err;
     }
   }
