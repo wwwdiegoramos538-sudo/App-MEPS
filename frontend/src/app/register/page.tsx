@@ -11,6 +11,7 @@ import { authApi } from '@/lib/api';
 import { saveAuth } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApiErrorMessage } from '@/lib/errors';
+import { setPendingTutorial } from '@/lib/onboarding';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -33,6 +34,7 @@ export default function RegisterPage() {
       const { data } = await authApi.register({ name, email, password });
       saveAuth(data.token, data.user);
       setUser(data.user);
+      setPendingTutorial();
       router.push('/dashboard');
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Error al registrarse'));

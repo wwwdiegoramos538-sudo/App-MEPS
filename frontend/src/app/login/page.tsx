@@ -12,6 +12,7 @@ import { saveAuth } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { getApiErrorMessage } from '@/lib/errors';
 import { wakeBackend, loginWithRetry } from '@/lib/wakeBackend';
+import { setPendingTutorial } from '@/lib/onboarding';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -35,8 +36,9 @@ export default function LoginPage() {
       );
       saveAuth(data.token, data.user);
       setUser(data.user);
+      setPendingTutorial();
       setStatus('');
-      router.push(data.user.role === 'ADMIN' ? '/admin' : '/dashboard');
+      router.push('/dashboard');
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Error al iniciar sesion'));
       setStatus('');

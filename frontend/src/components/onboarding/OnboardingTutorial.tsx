@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { Button } from '@/components/ui/Button';
@@ -10,39 +11,68 @@ import {
   TUTORIAL_STEPS,
   isTutorialDone,
   markTutorialDone,
+  hasPendingTutorial,
+  clearPendingTutorial,
 } from '@/lib/onboarding';
 
-interface OnboardingTutorialProps {
-  forceOpen?: boolean;
-  onClose?: () => void;
+function isAppRoute(pathname: string | null) {
+  return Boolean(pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin'));
 }
 
-export function OnboardingTutorial({ forceOpen = false, onClose }: OnboardingTutorialProps) {
-  const { user } = useAuth();
-  const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    if (forceOpen) {
-      setStep(0);
-      setOpen(true);
+function waitForIntroEnd(): Promise<void> {
+  return new Promise((resolve) => {
+    if (!document.documentElement.classList.contains('meps-intro-active')) {
+      resolve();
       return;
     }
-    if (!isTutorialDone(user.id)) {
-      const timer = setTimeout(() => {
-        setStep(0);
-        setOpen(true);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [user?.id, forceOpen]);
+    const done = () => resolve();
+    window.addEventListener('meps-intro-finished', done, { once: true });
+    setTimeout(done, 8000);
+  });
+}
 
-  const close = () => {
+export function OnboardingTutorial() {
+  const { user } = useAuth();
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [forceOpen, setForceOpen] = useState(false);
+
+  const close = useCallback(() => {
     if (user?.id) markTutorialDone(user.id);
+    clearPendingTutorial();
     setOpen(false);
-    onClose?.();
-  };
+    setForceOpen(false);
+  }, [user?.id]);
+
+  useEffect(() => {
+    const openHandler = () => setForceOpen(true);
+    window.addEventListener('meps-open-tutorial', openHandler);
+    return () => window.removeEventListener('meps-open-tutorial', openHandler);
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id || !isAppRoute(pathname)) return;
+
+    const shouldOpen =
+      forceOpen || hasPendingTutorial() || !isTutorialDone(user.id);
+    if (!shouldOpen) return;
+
+    let cancelled = false;
+
+    (async () => {
+      await waitForIntroEnd();
+      if (cancelled) return;
+      await new Promise((r) => setTimeout(r, 350));
+      if (cancelled) return;
+      setStep(0);
+      setOpen(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, pathname, forceOpen]);
 
   const skip = () => close();
 
@@ -62,7 +92,7 @@ export function OnboardingTutorial({ forceOpen = false, onClose }: OnboardingTut
   const progress = ((step + 1) / TUTORIAL_STEPS.length) * 100;
 
   return (
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100001] flex items-center justify-center p-4">
       <motion.div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         initial={{ opacity: 0 }}
@@ -74,12 +104,13 @@ export function OnboardingTutorial({ forceOpen = false, onClose }: OnboardingTut
         role="dialog"
         aria-modal="true"
         aria-labelledby="tutorial-title"
-        className="relative w-full max-w-lg bg-white dark:bg-gray-950 border-2 border-black rounded-2xl shadow-brutal-lg overflow-hidden"
+        className="relative w-full max-w-lg bg-white dark:bg-gray-950 border-2 border-black rounded-2xl shadow-brutal-lg overflow-hidden max-h-[90vh] overflow-y-auto"
         initial={{ opacity: 0, scale: 0.92, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-1.5 bg-gray-100 dark:bg-gray-800">
+        <div className="h-1.5 bg-gray-100 dark:bg-gray-800 sticky top-0">
           <motion.div
             className="h-full bg-gradient-to-r from-meps-primary to-meps-cyan"
             animate={{ width: `${progress}%` }}
@@ -170,7 +201,7 @@ export function OnboardingTutorial({ forceOpen = false, onClose }: OnboardingTut
                 </Button>
               )}
               <Button onClick={next} className="flex-1 sm:flex-none sm:min-w-[140px]">
-                {step >= TUTORIAL_STEPS.length - 1 ? 'Comenzar' : 'Siguiente'}
+                {step >= TUTORIAL_STEPS.length - 1 ? 'Comenzar' : 'Siguiente' }
               </Button>
             </div>
           </div>

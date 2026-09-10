@@ -40,6 +40,7 @@ export function AppIntro() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       cleanup();
       setVisible(false);
+      window.dispatchEvent(new CustomEvent('meps-intro-finished'));
       return;
     }
 
@@ -56,7 +57,10 @@ export function AppIntro() {
   }, [cleanup]);
 
   return (
-    <AnimatePresence onExitComplete={cleanup}>
+    <AnimatePresence onExitComplete={() => {
+      cleanup();
+      window.dispatchEvent(new CustomEvent('meps-intro-finished'));
+    }}>
       {visible && (
         <motion.div
           key="meps-intro"

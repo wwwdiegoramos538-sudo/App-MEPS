@@ -1,29 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
-import { OnboardingTutorial } from '@/components/onboarding/OnboardingTutorial';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [showTutorial, setShowTutorial] = useState(false);
-
-  useEffect(() => {
-    const openTutorial = () => setShowTutorial(true);
-    window.addEventListener('meps-open-tutorial', openTutorial);
-    return () => window.removeEventListener('meps-open-tutorial', openTutorial);
-  }, []);
 
   return (
     <ProtectedRoute>
-      <OnboardingTutorial
-        forceOpen={showTutorial}
-        onClose={() => setShowTutorial(false)}
-      />
       <div className="min-h-screen bg-[var(--background)]">
         <Sidebar />
         <main className="lg:ml-64 min-h-screen">
@@ -43,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <button
                 type="button"
-                onClick={() => setShowTutorial(true)}
+                onClick={() => window.dispatchEvent(new CustomEvent('meps-open-tutorial'))}
                 className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg border-2 border-black text-xs sm:text-sm font-semibold hover:bg-meps-sky/40 dark:hover:bg-gray-800 transition-colors"
                 title="Ver guia de uso"
               >

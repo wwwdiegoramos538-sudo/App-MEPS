@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'meps_onboarding_v1';
+const STORAGE_KEY = 'meps_onboarding_v2';
 
 export function isTutorialDone(userId?: string): boolean {
   if (typeof window === 'undefined' || !userId) return true;
@@ -11,6 +11,25 @@ export function markTutorialDone(userId: string) {
 
 export function resetTutorial(userId: string) {
   localStorage.removeItem(`${STORAGE_KEY}_${userId}`);
+}
+
+const PENDING_KEY = 'meps_pending_tutorial';
+
+export function setPendingTutorial() {
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(PENDING_KEY, '1');
+  }
+}
+
+export function hasPendingTutorial(): boolean {
+  if (typeof window === 'undefined') return false;
+  return sessionStorage.getItem(PENDING_KEY) === '1';
+}
+
+export function clearPendingTutorial() {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(PENDING_KEY);
+  }
 }
 
 export interface TutorialStep {
