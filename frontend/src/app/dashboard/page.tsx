@@ -34,7 +34,9 @@ export default function DashboardPage() {
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       <div>
         <h1 className="font-display text-2xl sm:text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-500 mt-1 text-sm sm:text-base">Bienvenido a MEPS - Traduciendo el Futuro</p>
+        <p className="text-gray-500 mt-1 text-sm sm:text-base">
+          Bienvenido, {user?.name?.split(' ')[0]}. Aqui tienes un resumen de tu actividad.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

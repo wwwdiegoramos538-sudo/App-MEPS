@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { OutlineIcon } from '@/components/icons/OutlineIcon';
 import { userApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -52,6 +53,20 @@ export default function SettingsPage() {
           <Input label="Email" value={user?.email || ''} disabled />
           <Button onClick={handleProfile} loading={loading}>Guardar cambios</Button>
         </div>
+      </Card>
+
+      <Card>
+        <h2 className="font-bold mb-2">Guia de uso</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Repasa el tutorial paso a paso sobre cada seccion y boton de MEPS.
+        </p>
+        <Button
+          variant="secondary"
+          onClick={() => window.dispatchEvent(new CustomEvent('meps-open-tutorial'))}
+        >
+          <OutlineIcon name="sparkles" size={16} className="!border-0 !shadow-none" />
+          Ver tutorial de nuevo
+        </Button>
       </Card>
 
       <Card>

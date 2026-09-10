@@ -189,7 +189,7 @@ export function AppIntro() {
               animate={{ opacity: [0.35, 0.7, 0.35] }}
               transition={{ duration: 2.2, delay: 1.3, repeat: Infinity, ease: 'easeInOut' }}
             >
-              Cargando plataforma...
+              Cargando...
             </motion.p>
 
             <motion.div

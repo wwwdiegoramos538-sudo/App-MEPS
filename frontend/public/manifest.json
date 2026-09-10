@@ -1,7 +1,7 @@
 {
   "name": "MEPS - Traduciendo el Futuro",
   "short_name": "MEPS",
-  "description": "Traduce documentos y crea audiolibros con IA",
+  "description": "Traduce documentos y crea audiolibros en mas de 50 idiomas",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f4f7ff",

@@ -10,17 +10,17 @@ import { OutlineIcon } from '@/components/icons/OutlineIcon';
 
 const features = [
   { icon: 'file', title: 'Documentos PDF, DOCX, TXT', desc: 'Sube y traduce cualquier documento profesional al instante.' },
-  { icon: 'languages', title: '50+ idiomas', desc: 'Traduccion precisa con DeepL y OpenAI a mas de 50 idiomas.' },
-  { icon: 'headphones', title: 'Audiolibros IA', desc: 'Convierte textos traducidos en audiolibros con voz natural.' },
-  { icon: 'palette', title: 'Editor de portadas', desc: 'Disena portadas profesionales tipo Canva con plantillas modernas.' },
+  { icon: 'languages', title: '50+ idiomas', desc: 'Traduccion precisa a mas de 50 idiomas con motores profesionales.' },
+  { icon: 'headphones', title: 'Audiolibros', desc: 'Convierte textos traducidos en audiolibros con voz natural.' },
+  { icon: 'palette', title: 'Editor de portadas', desc: 'Disena portadas profesionales con plantillas modernas.' },
   { icon: 'library', title: 'Biblioteca personal', desc: 'Organiza todos tus documentos y traducciones en un solo lugar.' },
-  { icon: 'zap', title: 'IA avanzada', desc: 'Motor dual DeepL + OpenAI para maxima calidad y velocidad.' },
+  { icon: 'zap', title: 'Rapido y fiable', desc: 'Resultados en segundos con calidad lista para publicar.' },
 ];
 
 const plans = [
   { name: 'Gratis', price: '$0', features: ['5 traducciones/mes', 'PDF, DOCX, TXT', '50+ idiomas'], cta: 'Comenzar' },
   { name: 'Basico', price: '$9.99', features: ['50 traducciones/mes', 'Biblioteca', 'Soporte email'], cta: 'Elegir plan', popular: false },
-  { name: 'Profesional', price: '$29.99', features: ['500 traducciones', 'Audiolibros IA', 'Editor portadas'], cta: 'Elegir plan', popular: true },
+  { name: 'Profesional', price: '$29.99', features: ['500 traducciones', 'Audiolibros', 'Editor portadas'], cta: 'Elegir plan', popular: true },
   { name: 'Empresarial', price: '$99.99', features: ['Ilimitado', 'API dedicada', 'Soporte 24/7'], cta: 'Contactar', popular: false },
 ];
 
@@ -36,19 +36,19 @@ export default function LandingPage() {
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border-2 border-black bg-meps-cyan/40 text-sm font-semibold mb-5 shadow-brutal-sm">
                 <OutlineIcon name="sparkles" size={16} />
-                Plataforma SaaS con Inteligencia Artificial
+                Traduccion profesional de documentos
               </span>
               <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
                 Traduce el futuro con <span className="text-gradient">MEPS</span>
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-lg">
-                Traduce documentos, libros, revistas, manuales y crea audiolibros en mas de 50 idiomas. La plataforma
-                profesional de traduccion con IA.
+                Traduce documentos, libros, revistas y manuales en mas de 50 idiomas. Crea audiolibros,
+                disena portadas y gestiona todo desde un solo lugar.
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
                 <Link href="/welcome" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Explorar plataforma
+                    Conocer MEPS
                     <OutlineIcon name="arrow" size={16} className="!border-0 !bg-transparent !shadow-none" />
                   </Button>
                 </Link>
@@ -104,7 +104,7 @@ export default function LandingPage() {
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">Todo lo que necesitas</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm sm:text-base">
-              Una plataforma completa para traducir, publicar y distribuir contenido en cualquier idioma.
+              Todo lo que necesitas para traducir, publicar y compartir contenido en cualquier idioma.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

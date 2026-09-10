@@ -14,16 +14,16 @@ export const metadata: Metadata = {
     title: 'MEPS',
   },
   title: {
-    default: 'MEPS - Traduciendo el Futuro | Traduccion con IA',
+    default: 'MEPS - Traduciendo el Futuro',
     template: '%s | MEPS',
   },
   description:
-    'Plataforma SaaS profesional para traducir documentos, libros, revistas, manuales y audiolibros a mas de 50 idiomas con inteligencia artificial.',
-  keywords: ['traduccion', 'IA', 'documentos', 'PDF', 'audiolibros', 'MEPS', 'DeepL', 'OpenAI'],
+    'Traduce documentos, libros y manuales a mas de 50 idiomas. Audiolibros, editor de portadas y biblioteca personal.',
+  keywords: ['traduccion', 'documentos', 'PDF', 'DOCX', 'audiolibros', 'MEPS', 'idiomas'],
   authors: [{ name: 'MEPS' }],
   openGraph: {
     title: 'MEPS - Traduciendo el Futuro',
-    description: 'Traduce documentos y crea audiolibros con IA en mas de 50 idiomas',
+    description: 'Traduce documentos y crea audiolibros en mas de 50 idiomas',
     type: 'website',
     locale: 'es_ES',
     siteName: 'MEPS',

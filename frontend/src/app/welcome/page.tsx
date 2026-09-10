@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { OutlineIcon } from '@/components/icons/OutlineIcon';
 
 const steps = [
-  { title: 'Bienvenido a MEPS', subtitle: 'Traduciendo el Futuro', desc: 'La plataforma de traduccion con IA mas avanzada' },
+  { title: 'Bienvenido a MEPS', subtitle: 'Traduciendo el Futuro', desc: 'Tu espacio para traducir documentos y crear contenido multilingue' },
   { title: 'Traduce cualquier documento', subtitle: 'PDF, DOCX, TXT', desc: 'Sube tus archivos y obten traducciones profesionales' },
-  { title: 'Crea audiolibros con IA', subtitle: 'Texto a voz natural', desc: 'Convierte tus traducciones en audiolibros' },
+  { title: 'Crea audiolibros', subtitle: 'Texto a voz natural', desc: 'Convierte tus traducciones en audiolibros listos para escuchar' },
   { title: 'Listo para comenzar', subtitle: 'Tu futuro multilingual', desc: 'Comienza a traducir en segundos' },
 ];
 
