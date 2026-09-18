@@ -35,8 +35,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   };
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
-    init.body = request.body;
-    (init as { duplex?: string }).duplex = 'duplex';
+    init.body = await request.arrayBuffer();
   }
 
   try {
