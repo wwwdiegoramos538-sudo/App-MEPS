@@ -11,7 +11,7 @@
     "dev:clean": "npm run clean && npm run dev",
     "build": "next build",
     "build:render": "next build",
-    "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "start": "next start -H 0.0.0.0",
     "lint": "next lint"
   },
   "dependencies": {

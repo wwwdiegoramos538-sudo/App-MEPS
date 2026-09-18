@@ -14,7 +14,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install && npx prisma generate
-    startCommand: npx prisma db push && node prisma/seed.js && node src/index.js
+    startCommand: node scripts/start-render.mjs
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV

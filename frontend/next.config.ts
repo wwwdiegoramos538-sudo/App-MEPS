@@ -10,12 +10,9 @@ const nextConfig: NextConfig = {
     webpackMemoryOptimizations: true,
   },
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.BACKEND_URL || 'http://localhost:4000'}/api/:path*`,
-      },
-    ];
+    // Health y network-url son rutas propias. El resto de /api se proxea en
+    // app/api/[...path] a runtime (BACKEND_URL de Render no se congela en el build).
+    return [];
   },
   images: {
     remotePatterns: [],
