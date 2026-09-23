@@ -12,6 +12,12 @@ export function getApiBaseUrl(): string {
   const host = window.location.hostname;
   const onLocalPc = host === 'localhost' || host === '127.0.0.1';
 
+  if (host.endsWith('.onrender.com')) {
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
+    if (backend) return `${backend.replace(/\/$/, '')}/api`;
+    if (host.includes('meps-frontend')) return 'https://meps-backend.onrender.com/api';
+  }
+
   if (!onLocalPc) {
     return '/api';
   }

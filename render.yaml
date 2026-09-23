@@ -81,6 +81,11 @@ services:
           name: meps-backend
           type: web
           envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_BACKEND_URL
+        fromService:
+          name: meps-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
       - key: NEXT_PUBLIC_APP_URL
         fromService:
           name: meps-frontend
