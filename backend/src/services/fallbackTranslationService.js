@@ -1,3 +1,5 @@
+import { isRelayAvailable, translateViaRelay } from './relayService.js';
+
 const CHUNK_SIZE = 4500;
 const BATCH_SIZE = 2;
 
@@ -53,7 +55,10 @@ async function translateWithMyMemory(text, sourceLang, targetLang) {
 
 async function translateChunk(text, sourceLang, targetLang) {
   const errors = [];
-  for (const fn of [translateWithGoogle, translateWithMyMemory]) {
+  const engines = isRelayAvailable()
+    ? [translateViaRelay, translateWithGoogle, translateWithMyMemory]
+    : [translateWithGoogle, translateWithMyMemory];
+  for (const fn of engines) {
     try {
       return await fn(text, sourceLang, targetLang);
     } catch (err) {

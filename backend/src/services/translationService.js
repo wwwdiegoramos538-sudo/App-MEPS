@@ -7,6 +7,7 @@ import { extractTextFromFile } from './fileParserService.js';
 import { translateWithDeepL, isDeepLAvailable } from './deeplService.js';
 import { translateWithOpenAI, isOpenAIAvailable } from './openaiService.js';
 import { translateWithFallback, isFallbackAvailable } from './fallbackTranslationService.js';
+import { translateWithFreeAi, isFreeAiAvailable } from './freeAiService.js';
 import { translateDocxPreservingFormat, isDocxFile } from './docxTranslationService.js';
 import { saveToStorage } from './storageService.js';
 import { sanitizeForDb } from '../utils/dbText.js';
@@ -24,6 +25,11 @@ async function runTranslation(sourceText, targetLanguage, sourceLanguage, provid
     return { text: await translateWithOpenAI(sourceText, targetLanguage, sourceLanguage), provider: 'openai' };
   };
 
+  const tryFreeAi = async () => {
+    if (!isFreeAiAvailable()) throw new Error('IA gratuita desactivada');
+    return { text: await translateWithFreeAi(sourceText, targetLanguage, sourceLanguage), provider: 'meps-ai' };
+  };
+
   const tryFallback = async () => {
     if (!isFallbackAvailable()) throw new Error('Sin servicios de traduccion');
     return { text: await translateWithFallback(sourceText, targetLanguage, sourceLanguage), provider: 'fallback' };
@@ -31,10 +37,10 @@ async function runTranslation(sourceText, targetLanguage, sourceLanguage, provid
 
   const chain =
     provider === 'deepl'
-      ? [tryDeepL, tryOpenAI, tryFallback]
+      ? [tryDeepL, tryOpenAI, tryFallback, tryFreeAi]
       : provider === 'openai'
-        ? [tryOpenAI, tryDeepL, tryFallback]
-        : [tryDeepL, tryOpenAI, tryFallback];
+        ? [tryOpenAI, tryDeepL, tryFallback, tryFreeAi]
+        : [tryDeepL, tryOpenAI, tryFallback, tryFreeAi];
 
   for (const attempt of chain) {
     try {
@@ -49,12 +55,8 @@ async function runTranslation(sourceText, targetLanguage, sourceLanguage, provid
 
 async function translateBlock(text, targetLanguage, sourceLanguage, provider) {
   if (!text?.trim()) return text;
-  try {
-    const result = await runTranslation(text, targetLanguage, sourceLanguage, provider);
-    return result.text;
-  } catch {
-    return translateWithFallback(text, targetLanguage, sourceLanguage);
-  }
+  const result = await runTranslation(text, targetLanguage, sourceLanguage, provider);
+  return result.text;
 }
 
 export async function startTranslation({

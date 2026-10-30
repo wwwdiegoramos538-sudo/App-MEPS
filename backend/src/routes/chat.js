@@ -37,9 +37,9 @@ router.post('/', async (req, res, next) => {
     });
 
     const chatHistory = history
+      .slice(1)
       .reverse()
-      .filter((m) => m.isSupport)
-      .flatMap((m) => [{ role: 'assistant', content: m.message }]);
+      .map((m) => ({ role: m.isSupport ? 'assistant' : 'user', content: m.message }));
 
     const reply = await chatSupport(message, chatHistory);
 

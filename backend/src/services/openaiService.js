@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import fs from 'fs';
 import { config } from '../config/index.js';
+import { freeAiChat, isFreeAiAvailable } from './freeAiService.js';
 
 let openai = null;
 
@@ -75,9 +76,22 @@ export async function generateAudiobookAudio(text, voice = 'alloy', outputPath) 
   return outputPath;
 }
 
+const SUPPORT_PROMPT =
+  'Eres el asistente de soporte de MEPS, plataforma de traduccion con IA. Responde en espanol de forma profesional y concisa. Ayuda con traducciones, suscripciones, subida de archivos y funciones de la plataforma.';
+
 export async function chatSupport(message, history = []) {
   const client = getOpenAI();
   if (!client) {
+    if (isFreeAiAvailable()) {
+      try {
+        return await freeAiChat(
+          [{ role: 'system', content: SUPPORT_PROMPT }, ...history, { role: 'user', content: message }],
+          { temperature: 0.7, timeoutMs: 12000, retries: 0, relayTimeoutMs: 42000 }
+        );
+      } catch (err) {
+        console.error('[MEPS] IA gratuita del chat fallo:', err.message);
+      }
+    }
     const q = message.toLowerCase();
     if (q.includes('traduc') || q.includes('pdf') || q.includes('docx')) {
       return 'Para traducir: ve a Dashboard → Traducir, sube un PDF/DOCX/TXT y elige idioma destino. MEPS usa DeepL, OpenAI o traductores gratuitos automaticamente.';
@@ -94,11 +108,7 @@ export async function chatSupport(message, history = []) {
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      {
-        role: 'system',
-        content:
-          'Eres el asistente de soporte de MEPS, plataforma de traduccion con IA. Responde en espanol de forma profesional y concisa. Ayuda con traducciones, suscripciones, subida de archivos y funciones de la plataforma.',
-      },
+      { role: 'system', content: SUPPORT_PROMPT },
       ...history,
       { role: 'user', content: message },
     ],

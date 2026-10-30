@@ -36,4 +36,6 @@ export const config = {
   uploadsDir: path.join(__dirname, '../../uploads'),
   storageDir: path.join(__dirname, '../../storage'),
   openLogin: process.env.OPEN_LOGIN === 'true',
+  relayUrl: (process.env.RELAY_URL || process.env.FRONTEND_URL || '').replace(/\/$/, ''),
+  relaySecret: process.env.RELAY_SECRET,
 };
