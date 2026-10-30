@@ -2,6 +2,7 @@
  * Despierta el backend en Render (plan gratis) antes de login u operaciones criticas.
  */
 import { api } from './api';
+import type { User } from './auth';
 
 const WAKE_ATTEMPTS = 3;
 const WAKE_DELAY_MS = 6000;
@@ -43,7 +44,7 @@ export async function wakeBackend(onStatus?: (msg: string) => void): Promise<boo
 }
 
 export async function loginWithRetry(
-  loginFn: () => Promise<{ data: { token: string; user: unknown } }>,
+  loginFn: () => Promise<{ data: { token: string; user: User } }>,
   onStatus?: (msg: string) => void
 ) {
   const attempts = isRenderHost() ? 3 : 2;
